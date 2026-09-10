@@ -139,7 +139,6 @@ class ObjectFollower(ObjectDetector):
                     self.closest_object = det
             print(self.closest_object['bbox'])
 
-        # self.closest_object = closest_detection
 
     def start_of(self, change):
         self.capturer.unobserve_all()

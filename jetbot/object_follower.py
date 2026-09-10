@@ -179,7 +179,6 @@ class ObjectFollower(ObjectDetector):
             self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
                                                      (self.width_display, self.height_display),
                                                      interpolation=cv2.INTER_LINEAR))
-
             # self.cap_image = bgr8_to_jpeg(self.capturer.image_display)
             return
 
@@ -244,7 +243,7 @@ class ObjectFollower(ObjectDetector):
         # print("ok!")
         # return self.cap_image
 
-    def stop_of(self, change):
+    def stop_of(self):
         from jetbot.utils import plot_exec_time
         print("stop running!")
         self.capturer.unobserve_all()

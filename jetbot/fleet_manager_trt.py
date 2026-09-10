@@ -113,9 +113,10 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
         #    self.execute_rc(change)
         #    self.speed_fm = self.speed_rc  # set fleet mge speed to road cruising speed (self.speed)
 
-    def start_fm(self, change):
+    def start_fm(self):
         self.capturer.unobserve_all()
         self.load_object_detector()  # load object detector function in object follower module
+        self.enable_of_exec = False
         self.load_road_cruiser()  # load_road_cruiser function in road_cruiser_trt module
 
         print("start running!")

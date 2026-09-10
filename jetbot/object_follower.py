@@ -67,8 +67,12 @@ class ObjectFollower(ObjectDetector):
     label_text = traitlets.Unicode(default_value='').tag(config=True)
     speed_of = traitlets.Float(default_value=0).tag(config=True)
     speed_gain_of = traitlets.Float(default_value=0.15).tag(config=True)
+    speed_dev_of = traitlets.Float(default_value=0.5).tag(config=True)
     turn_gain_of = traitlets.Float(default_value=0.3).tag(config=True)
     steering_bias_of = traitlets.Float(default_value=0.0).tag(config=True)
+    target_view_of = traitlets.Float(default_value=0.6).tag(config=True)
+    mean_view_of = traitlets.Float(default_value=0).tag(config=True)
+    e_view_of = traitlets.Float(default_value=0).tag(config=True)
     blocked = traitlets.Float(default_value=0).tag(config=True)
     is_detecting = traitlets.Bool(default_value=True).tag(config=True)
 
@@ -94,6 +98,15 @@ class ObjectFollower(ObjectDetector):
             self.height_display = self.capturer.height_display
             self.cap_image = np.empty(shape=(self.height_display, self.width_display, 3), dtype=np.uint8).tobytes()
             self.current_image = np.empty((self.img_height, self.img_width, 3))
+
+        self.ob_detect_duration_max = 10
+        self.ob_detect_count = 0
+
+        self.target_view_of = 0.5
+        self.mean_view_of = 0
+        self.mean_view_prev_of = 0
+        self.e_view_of = 0
+        self.e_view_prev_of = 0
 
         self.execution_time_of = []
         self.enable_of_exec = True
@@ -139,8 +152,7 @@ class ObjectFollower(ObjectDetector):
                     self.closest_object = det
             print(self.closest_object['bbox'])
 
-
-    def start_of(self, change):
+    def start_of(self):
         self.capturer.unobserve_all()
         self.load_object_detector()
 
@@ -177,7 +189,7 @@ class ObjectFollower(ObjectDetector):
         # detections = self.object_detector(image)
         # print(self.detections)
 
-        self.speed_of = self.speed_gain_of
+        # self.speed_of = self.speed_gain_of
 
         # draw all detections on image
         for det in self.detections[0]:
@@ -187,24 +199,37 @@ class ObjectFollower(ObjectDetector):
 
         # select detections that match selected class label and
         # get detection closest to center of field of view and draw it
-        cls_obj = self.closest_object
-        if cls_obj is not None:
-            bbox = cls_obj['bbox']
+        # cls_obj = self.closest_object
+        if self.closest_object is not None:
+            bbox = self.closest_object['bbox']
             cv2.rectangle(self.current_image, (int(self.img_width * bbox[0]), int(self.img_height * bbox[1])),
                            (int(self.img_width * bbox[2]), int(self.img_height * bbox[3])), (0, 255, 0), 5)
+            self.ob_detect_count = self.ob_detect_duration_max
 
-        # otherwise go forward if no target detected
-        if cls_obj is None:
-            self.robot.forward(float(self.speed_gain_of))
+            self.mean_view_of = 0.4 * (bbox[2] - bbox[0]) + 0.6 * self.mean_view_prev_of
+            self.e_view_of = self.target_view_of - self.mean_view_of
+            if np.abs(self.e_view_of / self.target_view_of) > 0.1:
+                self.speed_of = self.speed_of + self.speed_gain_of * self.e_view_of + self.speed_dev_of * (
+                        self.e_view_of - self.e_view_prev_of)
+            self.mean_view_prev_of = self.mean_view_of
+            self.e_view_prev_of = self.e_view_of
 
-        # otherwise steer towards target
+        # otherwise go forward or turn arround if no target detected
+        # if self.closest_object is None:
         else:
-            # move robot forward and steer proportional target's x-distance from center
-            center = object_center_detection(cls_obj)
-            self.robot.set_motors(
-                float(self.speed_gain_of + self.turn_gain_of * center[0] + self.steering_bias_of),
-                float(self.speed_gain_of - self.turn_gain_of * center[0] + self.steering_bias_of)
-            )
+            if self.ob_detect_count <= 0:
+                # self.robot.forward(float(self.speed_gain_of))
+                self.robot.left(0.2 * float(self.speed_gain_of))
+            else:
+                self.ob_detect_count -= 1
+        # otherwise steer towards target
+
+        # move robot forward and steer proportional target's x-distance from center
+        center = object_center_detection(self.closest_object)
+        self.robot.set_motors(
+            max(min(float(self.speed_of + self.turn_gain_of * center[0] + self.steering_bias_of), 1.0), -1.0),
+            max(min(float(self.speed_of - self.turn_gain_of * center[0] + self.steering_bias_of), 1.0), -1.0)
+        )
 
         end_time = time.time()
         # self.execution_time.append(end_time - start_time + self.capturer.cap_time)

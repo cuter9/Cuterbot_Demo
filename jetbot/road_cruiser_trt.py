@@ -57,6 +57,7 @@ class RoadCruiserTRT(HasTraits):
 
         self.device = torch.device('cuda')
         self.execution_time_rc = []
+        self.enable_rc_exec = True
 
     # ---- Creating the Pre-Processing Function
     # 1. Convert from HWC layout to CHW layout
@@ -88,6 +89,8 @@ class RoadCruiserTRT(HasTraits):
         return image[None, ...]
 
     def execute_rc(self, change):
+        if not self.enable_rc_exec:
+            return
         start_time = time.time()
 
         image = change['new']

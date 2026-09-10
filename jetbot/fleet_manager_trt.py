@@ -153,30 +153,34 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
             self.e_view_prev = self.e_view
 
         # otherwise go forward if no target detected for more than self.detect_duration_max times
-        if self.closest_object is None:
+        # if self.closest_object is None:
+        else:
             if self.no_detect <= 0:  # if object is not detected for a duration, road cruising
                 self.mean_view = 0.0
                 self.mean_view_prev = 0.0
                 self.is_detected = False
-                self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
-                                                         (self.width_display, self.height_display),
-                                                         interpolation=cv2.INTER_LINEAR))
+                #self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
+                #                                         (self.width_display, self.height_display),
+                #                                         interpolation=cv2.INTER_LINEAR))
                 # self.cap_image = bgr8_to_jpeg(self.current_image)
-                return
+            #    return
             else:
                 self.no_detect -= 1  # observe for a duration for the miss of object detection
                 print(f"left motor: {self.robot.left_motor.value}; right motor: {self.robot.right_motor.value}")
             # self.robot.forward(float(self.speed))
-
+            self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
+                                                         (self.width_display, self.height_display),
+                                                         interpolation=cv2.INTER_LINEAR))
+            return
         # otherwise, steer towards target
-        else:
-            # move the robot forward and steer proportional target's x-distance from center
-            center = object_center_detection(self.closest_object)
-            # the speed limit is set by alpha value of Motor Class in robot.py to 0.8
-            left_motor = max(min(float(self.speed_fm + self.turn_gain_fm * center[0] + self.steering_bias_fm), 1.0), -1.0)
-            right_motor = max(min(float(self.speed_fm - self.turn_gain_fm * center[0] + self.steering_bias_fm), 1.0), -1.0)
-            self.robot.set_motors(left_motor, right_motor)
-            print(f"left motor: {self.robot.left_motor.value}; right motor: {self.robot.right_motor.value}")
+        # else:
+        # move the robot forward and steer proportional target's x-distance from center
+        center = object_center_detection(self.closest_object)
+        # the speed limit is set by alpha value of Motor Class in robot.py to 0.8
+        left_motor = max(min(float(self.speed_fm + self.turn_gain_fm * center[0] + self.steering_bias_fm), 1.0), -1.0)
+        right_motor = max(min(float(self.speed_fm - self.turn_gain_fm * center[0] + self.steering_bias_fm), 1.0), -1.0)
+        self.robot.set_motors(left_motor, right_motor)
+        #print(f"left motor: {self.robot.left_motor.value}; right motor: {self.robot.right_motor.value}")
 
         # update image widget
         self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,

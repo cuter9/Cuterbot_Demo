@@ -115,8 +115,8 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
 
     def start_fm(self, change):
         self.capturer.unobserve_all()
-        self.load_object_detector(change)  # load object detector function in object follower module
-        self.load_road_cruiser(change)  # load_road_cruiser function in road_cruiser_trt module
+        self.load_object_detector()  # load object detector function in object follower module
+        self.load_road_cruiser()  # load_road_cruiser function in road_cruiser_trt module
 
         print("start running!")
         self.capturer.observe(self.execute_fm, names='value')

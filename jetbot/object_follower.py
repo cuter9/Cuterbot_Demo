@@ -98,7 +98,7 @@ class ObjectFollower(ObjectDetector):
         self.execution_time_of = []
         # self.fps = []
 
-    def load_object_detector(self, change):
+    def load_object_detector(self):
 
         # self.object_detector = None
         self.engine_path = self.follower_model  # set the engine_path in object detection module

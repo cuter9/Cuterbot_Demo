@@ -64,7 +64,7 @@ class RoadCruiserTRT(HasTraits):
     # 2. Normalize using same parameters as we did during training (our camera provides values in [0, 255] range and training loaded images in [0, 1] range so we need to scale by 255.0
     # 3. Transfer the data from CPU memory to GPU memory
     # 4. Add a batch dimension
-    def load_road_cruiser(self, change):
+    def load_road_cruiser(self):
 
         print('path of cruiser model: %s' % self.cruiser_model)
 

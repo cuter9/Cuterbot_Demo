@@ -96,6 +96,7 @@ class ObjectFollower(ObjectDetector):
             self.current_image = np.empty((self.img_height, self.img_width, 3))
 
         self.execution_time_of = []
+        self.enable_of_exec = True
         # self.fps = []
 
     def load_object_detector(self):
@@ -142,12 +143,14 @@ class ObjectFollower(ObjectDetector):
 
     def start_of(self, change):
         self.capturer.unobserve_all()
-        self.load_object_detector(change)
+        self.load_object_detector()
 
         print("start running!")
         self.capturer.observe(self.execute_of, names='value')
 
     def execute_of(self, change):
+        if not self.enable_of_exec:
+            return
         # print("start execution !")
         start_time = time.time()
 

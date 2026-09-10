@@ -43,7 +43,6 @@ addresses = qwiic.scan()
 
 class Motor(Configurable):
 
-
     value = traitlets.Float()
         
     # config

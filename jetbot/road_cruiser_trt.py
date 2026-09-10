@@ -91,8 +91,8 @@ class RoadCruiserTRT(HasTraits):
     def execute_rc(self, change):
         if not self.enable_rc_exec:
             return
-        start_time = time.time()
 
+        start_time = time.time()
         image = change['new']
         self.cap_image = bgr8_to_jpeg(cv2.resize(image,
                                                  (self.width_display, self.height_display),
@@ -129,7 +129,7 @@ class RoadCruiserTRT(HasTraits):
     def start_rc(self, change):
         # self.capturer.unobserve_all()
         # self.execute({'new': self.camera.value})
-        self.load_road_cruiser(change)
+        self.load_road_cruiser()
         print("start running!")
         self.capturer.observe(self.execute_rc, names='value')
 

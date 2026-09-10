@@ -52,12 +52,13 @@ class RoadCruiser(HasTraits):
         self.x_slider = 0
         self.y_slider = 0
 
+        self.enable_rc_exec = True
         self.execution_time_rc = []
         self.observe(self.select_gpu, names=['use_gpu'])
         self.device = None
         self.is_loaded = True
 
-    def load_road_cruiser(self, change):
+    def load_road_cruiser(self):
         pth_model_name = self.cruiser_model.split('/')[-1].split('.')[0].split('_', 4)[-1].split('-')[0]
         print('pytorch model name: %s' % pth_model_name)
         self.cruiser_model_pth, self.cruiser_model_type_pth, self.cruiser_model_preprocess_pth = load_model(
@@ -112,6 +113,9 @@ class RoadCruiser(HasTraits):
         return image[None, ...]
 
     def execute_rc(self, change):
+        if not self.enable_rc_exec:
+            return
+
         start_time = time.time()
         # global angle, angle_last
         image = change['new']

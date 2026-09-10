@@ -80,11 +80,13 @@ class Fleeter(ObjectFollower, RoadCruiser):
         self.e_view = 0
         self.e_view_prev = 0
 
+        self.enable_fm_exec = True
         self.execution_time_fm = []
         # self.fps = []
 
     def execute_fm(self, change):
-
+        if not self.enable_fm_exec:
+            return
         # do object following
         start_time = time.time()
         self.execute(change)
@@ -93,18 +95,25 @@ class Fleeter(ObjectFollower, RoadCruiser):
         self.execution_time_fm.append(end_time - start_time)
         # self.fps.append(1/(end_time - start_time))
 
-        # if closest object is not detected and followed, do road cruising
         if not self.is_detected:
-            self.execute_rc(change)
-            self.speed_fm = self.speed_rc
+            self.speed_fm = self.speed_rc  # set fleet mge speed to road cruising speed (self.speed)
+            self.enable_rc_exec = True
+        else:
+            self.enable_rc_exec =False
+
+        # if closest object is not detected and followed, do road cruising
+        # if not self.is_detected:
+        #    self.execute_rc(change)
+        #    self.speed_fm = self.speed_rc
 
     def start_fm(self, change):
-        self.load_object_detector(change)  # load object detector function in object follower module
-        self.load_road_cruiser(change)  # load_road_cruiser function in road_cruiser_trt module
+        self.load_object_detector()  # load object detector function in object follower module
+        self.load_road_cruiser()  # load_road_cruiser function in road_cruiser_trt module
         self.capturer.unobserve_all()
 
         print("start running")
         self.capturer.observe(self.execute_fm, names='value')
+        self.capturer.observe(self.execute_rc, names='value')
 
     def execute(self, change):
         # print("start execution !")

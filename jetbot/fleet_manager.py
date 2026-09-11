@@ -106,7 +106,7 @@ class Fleeter(ObjectFollower, RoadCruiser):
         #    self.execute_rc(change)
         #    self.speed_fm = self.speed_rc
 
-    def start_fm(self, change):
+    def start_fm(self):
         self.load_object_detector()  # load object detector function in object follower module
         self.load_road_cruiser()  # load_road_cruiser function in road_cruiser_trt module
         self.capturer.unobserve_all()
@@ -186,7 +186,7 @@ class Fleeter(ObjectFollower, RoadCruiser):
         # print("ok!")
         # return self.cap_image
 
-    def stop_fm(self, change):
+    def stop_fm(self):
         from jetbot.utils import plot_exec_time
         print("start stopping!")
 

@@ -156,6 +156,7 @@ class ObjectFollower(ObjectDetector):
     def start_of(self):
         self.capturer.unobserve_all()
         self.load_object_detector()
+        self.enable_of_exec = True
 
         print("start running!")
         self.capturer.observe(self.execute_of, names='value')

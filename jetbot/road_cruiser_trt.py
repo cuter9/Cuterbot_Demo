@@ -126,14 +126,14 @@ class RoadCruiserTRT(HasTraits):
 
 
     # We accomplish that with the observe function.
-    def start_rc(self, change):
+    def start_rc(self):
         # self.capturer.unobserve_all()
         # self.execute({'new': self.camera.value})
         self.load_road_cruiser()
         print("start running!")
         self.capturer.observe(self.execute_rc, names='value')
 
-    def stop_rc(self, change):
+    def stop_rc(self):
         from jetbot.utils import plot_exec_time
         self.capturer.unobserve_all()
         print("start stopping!")

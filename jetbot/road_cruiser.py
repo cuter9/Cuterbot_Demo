@@ -150,17 +150,17 @@ class RoadCruiser(HasTraits):
         # self.fps.append(1/(end_time - start_time))
 
     # We accomplish that with the observe function.
-    def start_rc(self, change):
+    def start_rc(self):
         # self.execute({'new': self.camera.value})
-        self.load_road_cruiser(change)
+        self.load_road_cruiser()
         if self.is_loaded:
             print("start running!")
             self.capturer.observe(self.execute_rc, names='value')
         else:
             print("The model can not be loaded, start stopping!")
-            self.stop_rc(change)
+            self.stop_rc()
 
-    def stop_rc(self, change):
+    def stop_rc(self):
         from jetbot.utils import plot_exec_time
         print("start stopping!")
         # self.camera.unobserve(self.execute, names='value')

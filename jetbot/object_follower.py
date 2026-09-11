@@ -81,6 +81,7 @@ class ObjectFollower(ObjectDetector):
     def __init__(self, init_sensor_of=False):
 
         super().__init__()
+        self.is_detected = False
         self.detections = None
         self.matching_detections = None
         self.object_center = None
@@ -203,6 +204,7 @@ class ObjectFollower(ObjectDetector):
         # get detection closest to center of field of view and draw it
         # cls_obj = self.closest_object
         if self.closest_object is not None:
+            self.is_detected = False
             bbox = self.closest_object['bbox']
             cv2.rectangle(self.current_image, (int(self.img_width * bbox[0]), int(self.img_height * bbox[1])),
                            (int(self.img_width * bbox[2]), int(self.img_height * bbox[3])), (0, 255, 0), 5)

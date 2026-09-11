@@ -220,9 +220,16 @@ class ObjectFollower(ObjectDetector):
         else:
             if self.ob_detect_count <= 0:
                 # self.robot.forward(float(self.speed_gain_of))
-                self.robot.left(0.2 * float(self.speed_gain_of))
+                self.robot.left(0.05)
+                self.mean_view_of = 0.0
+                self.mean_view_prev_of = 0.0
+                self.is_detected = False
             else:
                 self.ob_detect_count -= 1
+            self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
+                                                         (self.width_display, self.height_display),
+                                                         interpolation=cv2.INTER_LINEAR))
+            return
         # otherwise steer towards target
 
         # move robot forward and steer proportional target's x-distance from center

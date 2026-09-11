@@ -74,6 +74,7 @@ class ObjectFollower(ObjectDetector):
     target_view_of = traitlets.Float(default_value=0.6).tag(config=True)
     mean_view_of = traitlets.Float(default_value=0).tag(config=True)
     e_view_of = traitlets.Float(default_value=0).tag(config=True)
+    search_speed_of = traitlets.Float(default_value=0.2).tag(config=True)
     blocked = traitlets.Float(default_value=0).tag(config=True)
     is_detecting = traitlets.Bool(default_value=True).tag(config=True)
 
@@ -220,7 +221,7 @@ class ObjectFollower(ObjectDetector):
         else:
             if self.ob_detect_count <= 0:
                 # self.robot.forward(float(self.speed_gain_of))
-                self.robot.left(0.05)
+                self.robot.left(self.search_speed_of)
                 self.mean_view_of = 0.0
                 self.mean_view_prev_of = 0.0
                 self.is_detected = False

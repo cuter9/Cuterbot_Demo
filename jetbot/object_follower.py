@@ -228,7 +228,7 @@ class ObjectFollower(ObjectDetector):
         # otherwise steer towards target
         # move robot forward and steer proportional target's x-distance from center
         center = object_center_detection(self.closest_object)
-        print(f"center: {center}; target box (x_r, y_t, x_l, y_b):{self.closest_object["bbox"]}")
+        # print(f"center: {center}; target box (x_r, y_t, x_l, y_b):{self.closest_object['bbox']}")
         self.robot.set_motors(
             max(min(float(self.speed_of + self.turn_gain_of * center[0] + self.steering_bias_of), 1.0), -1.0),
             max(min(float(self.speed_of - self.turn_gain_of * center[0] + self.steering_bias_of), 1.0), -1.0)

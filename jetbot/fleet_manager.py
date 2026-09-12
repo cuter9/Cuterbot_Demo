@@ -166,8 +166,7 @@ class Fleeter(ObjectFollower, RoadCruiser):
         # otherwise steer towards target
         # move robot forward and steer proportional target's x-distance from center
         center = object_center_detection(self.closest_object)
-        print(f"center: {center}; target box (x_r, y_t, x_l, y_b):{self.closest_object["bbox"]}")
-
+        # print(f"center: {center}; target box (x_r, y_t, x_l, y_b):{self.closest_object['bbox']}")
         self.robot.set_motors(
             float(self.speed_fm + self.turn_gain_fm * center[0] + self.steering_bias_fm),
             float(self.speed_fm - self.turn_gain_fm * center[0] + self.steering_bias_fm)

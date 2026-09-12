@@ -129,11 +129,10 @@ class Fleeter(ObjectFollower, RoadCruiser):
 
         # select detections that match selected class label
         # get detection closest to center of field of view and draw it
-        cls_obj = self.closest_object
-        if cls_obj is not None:
+        if self.closest_object is not None:
             self.is_detected = True
             self.no_detect = self.detect_duration_max  # set max detection no to prevent temperary loss of object detection
-            bbox = cls_obj['bbox']
+            bbox = self.closest_object['bbox']
             cv2.rectangle(self.current_image, (int(self.img_width * bbox[0]), int(self.img_height * bbox[1])),
                           (int(self.img_width * bbox[2]), int(self.img_height * bbox[3])), (0, 255, 0), 5)
 
@@ -166,7 +165,9 @@ class Fleeter(ObjectFollower, RoadCruiser):
 
         # otherwise steer towards target
         # move robot forward and steer proportional target's x-distance from center
-        center = object_center_detection(cls_obj)
+        center = object_center_detection(self.closest_object)
+        print(f"center: {center}; target box (x_r, y_t, x_l, y_b):{self.closest_object["bbox"]}")
+
         self.robot.set_motors(
             float(self.speed_fm + self.turn_gain_fm * center[0] + self.steering_bias_fm),
             float(self.speed_fm - self.turn_gain_fm * center[0] + self.steering_bias_fm)

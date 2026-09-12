@@ -28,20 +28,21 @@ def norm(vec):
 
 
 class Fleeter(ObjectFollower, RoadCruiser):
+    # model parameters
+    # inheritance of the model parameters from ObjectFollower and RoadCruiser
     cap_image = Any()
     conf_th = Float(default_value=0.5).tag(config=True)
-    # label = Integer(default_value=1).tag(config=True)
-    # label_text = Unicode(default_value='').tag(config=True)
+
     speed_fm = Float(default_value=0.10).tag(config=True)
     speed_gain_fm = Float(default_value=0.01).tag(config=True)
     speed_dev_fm = Float(default_value=0.5).tag(config=True)
     turn_gain_fm = Float(default_value=0.3).tag(config=True)
     steering_bias_fm = Float(default_value=0.0).tag(config=True)
-    # blocked = Float(default_value=0).tag(config=True)
     target_view = Float(default_value=0.6).tag(config=True)
     mean_view = Float(default_value=0).tag(config=True)
     e_view = Float(default_value=0).tag(config=True)
-    # is_detecting = Bool(default_value=True).tag(config=True)
+
+    # blocked = Float(default_value=0).tag(config=True)
     is_detected = Bool(default_value=False).tag(config=True)
 
     def __init__(self, init_sensor_fm=False):
@@ -95,16 +96,12 @@ class Fleeter(ObjectFollower, RoadCruiser):
         self.execution_time_fm.append(end_time - start_time)
         # self.fps.append(1/(end_time - start_time))
 
+        # if closest object is not detected and followed, do road cruising
         if not self.is_detected:
             self.speed_fm = self.speed_rc  # set fleet mge speed to road cruising speed (self.speed)
             self.enable_rc_exec = True
         else:
             self.enable_rc_exec =False
-
-        # if closest object is not detected and followed, do road cruising
-        # if not self.is_detected:
-        #    self.execute_rc(change)
-        #    self.speed_fm = self.speed_rc
 
     def start_fm(self):
         self.load_object_detector()  # load object detector function in object follower module
@@ -122,7 +119,6 @@ class Fleeter(ObjectFollower, RoadCruiser):
         # compute all detected objects
         self.run_objects_detection()
         self.closest_object_detection()
-        # detections = self.object_detector(image)
         # print(self.detections)
 
         # draw all detections on image
@@ -147,41 +143,39 @@ class Fleeter(ObjectFollower, RoadCruiser):
             if np.abs(self.e_view / self.target_view) > 0.1:
                 self.speed_fm = self.speed_fm + self.speed_gain_fm * self.e_view + self.speed_dev_fm * (
                         self.e_view - self.e_view_prev)
-            # self.speed_rc = self.speed_fm
 
             self.mean_view_prev = self.mean_view
             self.e_view_prev = self.e_view
 
-        # otherwise go forward if no target detected
-        if cls_obj is None:
-            if self.no_detect <= 0:  # if object is not detected for a duration, road cruising
+        # otherwise go forward if no target detected for a duration
+        else:
+            # if object is not detected for a duration, turn to road cruising
+            if self.no_detect <= 0:
                 self.mean_view = 0.0
                 self.mean_view_prev = 0.0
                 self.is_detected = False
-                self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
-                                                         (self.width_display, self.height_display),
-                                                         interpolation=cv2.INTER_LINEAR))
-                # self.cap_image = bgr8_to_jpeg(self.current_image)
-                return
-
             else:
-                self.no_detect -= 1  # observe for a duration for the miss of object detection
-            # self.robot.forward(float(self.speed))
+                # no observed target for a duration for the miss of object detection
+                self.no_detect -= 1
+
+            # clear the mark of closest target object
+            self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
+                                                 (self.width_display, self.height_display),
+                                                 interpolation=cv2.INTER_LINEAR))
+            return
 
         # otherwise steer towards target
-        else:
-            # move robot forward and steer proportional target's x-distance from center
-            center = object_center_detection(cls_obj)
-            self.robot.set_motors(
-                float(self.speed_fm + self.turn_gain_fm * center[0] + self.steering_bias_fm),
-                float(self.speed_fm - self.turn_gain_fm * center[0] + self.steering_bias_fm)
-            )
+        # move robot forward and steer proportional target's x-distance from center
+        center = object_center_detection(cls_obj)
+        self.robot.set_motors(
+            float(self.speed_fm + self.turn_gain_fm * center[0] + self.steering_bias_fm),
+            float(self.speed_fm - self.turn_gain_fm * center[0] + self.steering_bias_fm)
+        )
 
         # update image widget
         self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
                                                  (self.width_display, self.height_display),
                                                  interpolation=cv2.INTER_LINEAR))
-        # self.cap_image = bgr8_to_jpeg(self.current_image)
 
         # print("ok!")
         # return self.cap_image

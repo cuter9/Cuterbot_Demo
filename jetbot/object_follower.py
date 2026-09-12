@@ -113,7 +113,6 @@ class ObjectFollower(ObjectDetector):
 
         self.execution_time_of = []
         self.enable_of_exec = True
-        # self.fps = []
 
     def load_object_detector(self):
 
@@ -123,8 +122,10 @@ class ObjectFollower(ObjectDetector):
 
         # avoider_model='../collision_avoidance/best_model.pth'
         # self.obstacle_detector = Avoider(model_params=self.avoider_model)
+
+        # load object detection engine function in object detection module
         print('path of object detector model: %s' % self.follower_model)
-        self.load_od_engine()  # load object detection engine function in object detection module
+        self.load_od_engine()
 
     def run_objects_detection(self):
         # self.image = self.capturer.value
@@ -170,8 +171,6 @@ class ObjectFollower(ObjectDetector):
         start_time = time.time()
 
         self.current_image = change['new']
-        # width = self.img_width
-        # height = self.img_height
 
         # print(image)
         # ** execute collision model to determine if blocked
@@ -179,20 +178,15 @@ class ObjectFollower(ObjectDetector):
         if self.blocked > 0.5:
             #      # robot.left(0.3)
             self.robot.left(0.05)
-            # self.cap_image = bgr8_to_jpeg(self.current_image)
             self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
                                                      (self.width_display, self.height_display),
                                                      interpolation=cv2.INTER_LINEAR))
-            # self.cap_image = bgr8_to_jpeg(self.capturer.image_display)
             return
 
         # compute all detected objects
         self.run_objects_detection()
         self.closest_object_detection()
-        # detections = self.object_detector(image)
         # print(self.detections)
-
-        # self.speed_of = self.speed_gain_of
 
         # draw all detections on image
         for det in self.detections[0]:
@@ -202,7 +196,6 @@ class ObjectFollower(ObjectDetector):
 
         # select detections that match selected class label and
         # get detection closest to center of field of view and draw it
-        # cls_obj = self.closest_object
         if self.closest_object is not None:
             self.is_detected = False
             bbox = self.closest_object['bbox']
@@ -219,7 +212,6 @@ class ObjectFollower(ObjectDetector):
             self.e_view_prev_of = self.e_view_of
 
         # otherwise go forward or turn arround if no target detected
-        # if self.closest_object is None:
         else:
             if self.ob_detect_count <= 0:
                 # self.robot.forward(float(self.speed_gain_of))
@@ -234,7 +226,6 @@ class ObjectFollower(ObjectDetector):
                                                          interpolation=cv2.INTER_LINEAR))
             return
         # otherwise steer towards target
-
         # move robot forward and steer proportional target's x-distance from center
         center = object_center_detection(self.closest_object)
         self.robot.set_motors(
@@ -247,8 +238,6 @@ class ObjectFollower(ObjectDetector):
         self.execution_time_of.append(end_time - start_time)
         # self.fps.append(1/(end_time - start_time))
 
-        # update image widget
-        # image_widget.value = bgr8_to_jpeg(image)
         self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
                                                  (self.width_display, self.height_display),
                                                  interpolation=cv2.INTER_LINEAR))

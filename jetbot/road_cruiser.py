@@ -45,10 +45,8 @@ class RoadCruiser(HasTraits):
             self.height_display = self.capturer.height_display
             self.cap_image = np.empty(shape=(self.height_display, self.width_display, 3), dtype=np.uint8).tobytes()
 
-        # self.robot = Robot()
         self.angle = 0.0
         self.angle_last = 0.0
-        # self.fps = []
         self.x_slider = 0
         self.y_slider = 0
 
@@ -72,7 +70,7 @@ class RoadCruiser(HasTraits):
 
         print('path of cruiser model: %s' % self.cruiser_model)
         print('use %s for inference.' % self.use_gpu)
-        # self.cruiser_model.load_state_dict(torch.load('best_steering_model_xy_' + cruiser_model + '.pth'))
+
         self.cruiser_model_pth.load_state_dict(torch.load(self.cruiser_model))
         self.cruiser_model_preprocess_pth = torch.load(self.cruiser_model_preprocess)
 

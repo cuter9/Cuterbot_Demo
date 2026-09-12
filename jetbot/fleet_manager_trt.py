@@ -29,25 +29,19 @@ def object_center_detection(det):
 class FleeterTRT(ObjectFollower, RoadCruiserTRT):
     cap_image = Any()
     # model parameters
-    # follower_model = Unicode(default_value='').tag(config=True)
-    # type_follower_model = Unicode(default_value='').tag(config=True)
-    # cruiser_model = Unicode(default_value='').tag(config=True)
-    # type_cruiser_model = Unicode(default_value='').tag(config=True)
+    # inheritance of the model parameters from ObjectFollower and RoadCruiserTRT
     conf_th = Float(default_value=0.5).tag(config=True)
-    # label = Integer(default_value=1).tag(config=True)
-    # label_text = Unicode(default_value='').tag(config=True)
-    # control parameters
-    # speed_rc = Float(default_value=0).tag(config=True)
     speed_fm = Float(default_value=0.10).tag(config=True)
     speed_gain_fm = Float(default_value=0.01).tag(config=True)
     speed_dev_fm = Float(default_value=0.5).tag(config=True)
     turn_gain_fm = Float(default_value=0.3).tag(config=True)
     steering_bias_fm = Float(default_value=0.0).tag(config=True)
-    # blocked = Float(default_value=0).tag(config=True)
+
     target_view = Float(default_value=0.6).tag(config=True)
     mean_view = Float(default_value=0).tag(config=True)
     e_view = Float(default_value=0).tag(config=True)
-    # is_detecting = Bool(default_value=True).tag(config=True)
+
+    # blocked = Float(default_value=0).tag(config=True)
     is_detected = Bool(default_value=False).tag(config=True)
 
     def __init__(self, init_sensor_fm=False):
@@ -89,7 +83,6 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
 
         self.enable_fm_exec = True
         self.execution_time_fm = []
-        # self.fps = []
 
     def execute_fm(self, change):
         # do the object following
@@ -108,11 +101,6 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
         else:
             self.enable_rc_exec =False
 
-        # if the closest object is not detected and followed, perform the road cruising
-        # if not self.is_detected:
-        #    self.execute_rc(change)
-        #    self.speed_fm = self.speed_rc  # set fleet mge speed to road cruising speed (self.speed)
-
     def start_fm(self):
         self.capturer.unobserve_all()
         self.load_object_detector()  # load object detector function in object follower module
@@ -130,7 +118,6 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
         # compute all detected objects
         self.run_objects_detection()
         self.closest_object_detection()
-        # detections = self.object_detector(image)
         # print(self.detections)
 
         # draw all detections on image
@@ -141,7 +128,6 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
 
         # select detections that match selected class label
         # get detection closest to the center of view field and draw it
-        # cls_obj = self.closest_object
         if self.closest_object is not None:
             self.is_detected = True
             self.no_detect = self.detect_duration_max  # set max detection no to prevent temporary loss of object detection
@@ -149,39 +135,33 @@ class FleeterTRT(ObjectFollower, RoadCruiserTRT):
             cv2.rectangle(self.current_image, (int(self.img_width * bbox[0]), int(self.img_height * bbox[1])),
                           (int(self.img_width * bbox[2]), int(self.img_height * bbox[3])), (0, 255, 0), 5)
 
-            # self.mean_view = 0.4 * (bbox[3] - bbox[1]) + 0.6 * self.mean_view_prev
             self.mean_view = 0.4 * (bbox[2] - bbox[0]) + 0.6 * self.mean_view_prev
             self.e_view = self.target_view - self.mean_view
             if np.abs(self.e_view / self.target_view) > 0.1:
                 self.speed_fm = self.speed_fm + self.speed_gain_fm * self.e_view + self.speed_dev_fm * (
                         self.e_view - self.e_view_prev)
-            # self.speed = self.speed_fm
 
             self.mean_view_prev = self.mean_view
             self.e_view_prev = self.e_view
 
         # otherwise go forward if no target detected for more than self.detect_duration_max times
-        # if self.closest_object is None:
         else:
             if self.no_detect <= 0:  # if object is not detected for a duration, road cruising
                 self.mean_view = 0.0
                 self.mean_view_prev = 0.0
                 self.is_detected = False
-                #self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
-                #                                         (self.width_display, self.height_display),
-                #                                         interpolation=cv2.INTER_LINEAR))
-                # self.cap_image = bgr8_to_jpeg(self.current_image)
-            #    return
+
             else:
-                self.no_detect -= 1  # observe for a duration for the miss of object detection
-                print(f"left motor: {self.robot.left_motor.value}; right motor: {self.robot.right_motor.value}")
-            # self.robot.forward(float(self.speed))
+                # no observed for a duration for the miss of object detection
+                self.no_detect -= 1
+                # print(f"left motor: {self.robot.left_motor.value}; right motor: {self.robot.right_motor.value}")
+
+            # clear the mark of closest target object
             self.cap_image = bgr8_to_jpeg(cv2.resize(self.current_image,
                                                          (self.width_display, self.height_display),
                                                          interpolation=cv2.INTER_LINEAR))
             return
         # otherwise, steer towards target
-        # else:
         # move the robot forward and steer proportional target's x-distance from center
         center = object_center_detection(self.closest_object)
         # the speed limit is set by alpha value of Motor Class in robot.py to 0.8

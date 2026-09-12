@@ -2,6 +2,7 @@ from jetbot import Camera
 from jetbot import Robot
 from jetbot import bgr8_to_jpeg
 from jetbot import ObjectFollower
+from jetbot.object_follower import object_center_detection
 from jetbot import RoadCruiserTRT
 # from jetbot.utils import get_cls_dict_yolo, get_cls_dict_ssd
 import cv2
@@ -15,7 +16,7 @@ def norm(vec):
     """Computes the length of the 2D vector"""
     return np.sqrt(vec[0] ** 2 + vec[1] ** 2)
 
-
+'''
 def object_center_detection(det):
     """Computes the center x, y coordinates of the object"""
     # print(self.matching_detections)
@@ -24,7 +25,7 @@ def object_center_detection(det):
     center_y = (bbox[1] + bbox[3]) / 2.0 - 0.5
     object_center = (center_x, center_y)
     return object_center
-
+'''
 
 class FleeterTRT(ObjectFollower, RoadCruiserTRT):
     cap_image = Any()

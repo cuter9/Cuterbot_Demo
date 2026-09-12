@@ -3,6 +3,8 @@ from jetbot import Robot
 from jetbot import bgr8_to_jpeg
 from jetbot import RoadCruiser
 from jetbot import ObjectFollower
+from jetbot.object_follower import object_center_detection
+
 # from jetbot.utils import get_cls_dict_yolo, get_cls_dict_ssd
 from traitlets import Float, Bool, Any
 
@@ -12,6 +14,7 @@ import numpy as np
 
 import time
 
+'''
 def object_center_detection(det):
     """Computes the center x, y coordinates of the object"""
     # print(self.matching_detections)
@@ -20,7 +23,7 @@ def object_center_detection(det):
     center_y = (bbox[1] + bbox[3]) / 2.0 - 0.5
     object_center = (center_x, center_y)
     return object_center
-
+'''
 
 def norm(vec):
     """Computes the length of the 2D vector"""
